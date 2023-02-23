@@ -23,6 +23,7 @@ Create a `envconf.toml` file with the following format:
 template = "./test/example1/.env.sample"
 output = "./test/example1/.env"
 allow-empty = ["IGNORED_ENV"]
+force-prompt-on-create = ["FORCED_PROMPT_WITH_DEFAULT_VALUE"]
 
 [files.example2]
 template = "./test/example2/.env.local.sample"
@@ -35,6 +36,7 @@ output = "./test/example2/.env.local"
 - `allow-empty`
   - Ignores the envs on creation and copies it as-is with the value set to an empty string
   - If the output file already exists and does not contain the variables specified in `allow-empty`, it will prompt to fill in as blank
+- `force-prompt-on-create`: forces a prompt on create for the given env variables even though they have default values
 
 ## Behaviours
 ### On creation of the env file

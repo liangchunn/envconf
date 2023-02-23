@@ -16,6 +16,7 @@ type ConfigFile = Record<
       template: string;
       output: string;
       "allow-empty": string[] | undefined;
+      "force-prompt-on-create": string[] | undefined;
     }
   >
 >;
@@ -43,6 +44,7 @@ async function main() {
   for (const key of keys) {
     const config = parsedConfigFile.files[key];
     const ignoreKeys = config["allow-empty"] ?? [];
+    const forcedKeys = config["force-prompt-on-create"] ?? [];
     const outputFilePath = path.resolve(
       resolvedConfigPath,
       "..",
@@ -119,10 +121,14 @@ async function main() {
         encoding: "utf-8",
       });
       const envVars = dotenv.parse(templateFileContents);
-      // get all env vars which are unpopulated in the env file
+      // get all env vars which are unpopulated in the env file OR matches the overrides
       // and ignore the keys which should be left empty by default
       const envVarKeys = Object.entries(envVars)
-        .filter(([key, value]) => value === "" && !ignoreKeys.includes(key))
+        .filter(
+          ([key, value]) =>
+            (value === "" || forcedKeys.includes(key)) &&
+            !ignoreKeys.includes(key)
+        )
         .map(([key]) => key);
 
       const templateRelativePath = path.relative(
@@ -151,7 +157,8 @@ function populateTemplate(
   let sink = templateString;
 
   for (const [key, value] of Object.entries(variables)) {
-    sink = sink.replace(`${key}=`, `${key}=${value}`);
+    const pattern = new RegExp(`${key}=(.*)`);
+    sink = sink.replace(pattern, `${key}=${value}`);
   }
 
   return sink;
