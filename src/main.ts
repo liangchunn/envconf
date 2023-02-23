@@ -141,6 +141,8 @@ async function main() {
         message: `Enter the value for ${envVar}:`,
         name: envVar,
         type: "input",
+        // show forcedKeys's default value if available
+        default: forcedKeys.includes(envVar) ? envVars[envVar] : undefined,
       }));
       const answers = await inquirer.prompt(questions);
       const outputFile = populateTemplate(templateFileContents, answers);
